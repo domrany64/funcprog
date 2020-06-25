@@ -76,15 +76,16 @@ elements can be in any order, but each list must not have duplicate elements.
 
 > -- columnIxs cx = [(cx,C0), (cx,C1), (cx,C2)]
 > columnIxs :: Coordinate -> [Index]
-> columnIxs cx = undefined
+> columnIxs cx = zip (repeat cx) coordinates 
 
 > -- downDiagIxs = [(C0,C0), (C1,C1), (C2,C2)]
 > downDiagIxs :: [Index]
-> downDiagIxs = undefined
+> downDiagIxs = zip coordinates coordinates
+> -- downDiagIxs = [(cx,cy) | cx <- coordinates, cy <- coordinates, cx == cy]
 
 > -- upDiagIxs = [(C0,C2), (C1,C1), (C2,C0)]
 > upDiagIxs :: [Index]
-> upDiagIxs = undefined
+> upDiagIxs = zip coordinates (reverse coordinates)
 
 *****************
 * END PROBLEM 1 *
@@ -195,7 +196,7 @@ previously defined functions and lists to filter the list of all indices down
 to only those that contain an empty cell.
 
 > emptyIxs :: Board -> [Index]
-> emptyIxs b = undefined
+> emptyIxs b = [(x,y) | x <- coordinates, y <- coordinates, emptyAt b (x,y)]
 
 *****************
 * END PROBLEM 2 *
@@ -222,7 +223,7 @@ but for now you should treat them as having the above types. The function call
 and "all f xs" tests whether "f" returns True for *every* element of "xs".
 
 > won :: Board -> Player -> Bool
-> won b x = undefined
+> won b x = any (all (playerAt b x)) winLines 
 
 *****************
 * END PROBLEM 3 *
