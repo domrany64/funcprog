@@ -309,12 +309,14 @@ recurse into "moveOutcome", so "moveOutcome" doesn't need to have any calls to
 Replace the "Tie" below with your definition.
 
 > moveOutcome :: Board -> Player -> Index -> Outcome
-> moveOutcome b x i = Tie
-
+> moveOutcome b x i = 
+>   if won (write i x b) x then Win
+>   else if won (write i (opponent x) b) (opponent x) then Tie
+>   else Loss
+ 
 *****************
 * END PROBLEM 4 *
 *****************
-
 
 Now, the payoff for your work is a function that returns the best move for a
 given player on a given board. Note that this throws a runtime error if there
