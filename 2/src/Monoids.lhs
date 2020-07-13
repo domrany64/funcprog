@@ -214,8 +214,10 @@ There may be multiple different valid answers for each question.
 a.
 
 > instance Monoid a => Monoid (Maybe a) where
->   x <> y = undefined
->   mempty = undefined
+>   Just x <> Just y = Just (x <> y)
+>   Nothing <> y = y
+>   x <> Nothing = x
+>   mempty = Nothing
 
 
 b.
