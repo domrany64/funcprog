@@ -237,9 +237,16 @@ b.
 >   That     y1 == This  x2    = False
 
 > instance (Monoid a, Monoid b) => Monoid (These a b) where
->   x <> y = undefined
->   mempty = undefined
-
+>   These x1 y1 <> These x2 y2 = These (x1<>x2) (y1<>y2)
+>   This  x1    <> These x2 y2 = These (x1 <> x2) (mempty <> y2)
+>   That     y1 <> These x2 y2 = These (mempty <> x2) (y1 <> y2)
+>   These x1 y1 <> This  x2    = These (x1 <> x2) (y1 <> mempty)
+>   These x1 y1 <> That     y2 = These (x1 <> mempty) (y1 <> y2)
+>   This  x1    <> This  x2    = This (x1 <> x2)
+>   That     y1 <> That     y2 = That (y1 <> y2)
+>   This  x1    <> That     y2 = These x1 y2
+>   That     y1 <> This  x2    = These x2 y1 
+>   mempty = These mempty mempty
 
 c.
 
@@ -366,7 +373,7 @@ Do not modify the Monoid instance for BinTree above.
 Don't worry about efficiency. This is probably simpler than you think!
 
 > instance Eq a => Eq (BinTree a) where
->   t1 == t2 = undefined
+>   t1 == t2 = (nodeList t1 == nodeList t2) && (nodeCount t1 == nodeCount t2)
 
 *****************
 * END PROBLEM 2 *
@@ -439,13 +446,13 @@ standard arithmetic operations are associative and have a "unit" value. For
 example, the Sum type represents "integers with addition", and the Product type represents "integers with multiplication".
 
 > newtype Sum = Sum { getSum :: Int }
-
+>   deriving (Show)
 > instance Monoid Sum where
 >   x <> y = Sum (getSum x + getSum y)
 >   mempty = Sum 0
 
 > newtype Product = Product { getProduct :: Int }
-
+>   deriving (Show)
 > instance Monoid Product where
 >   x <> y = Product (getProduct x * getProduct y)
 >   mempty = Product 1
@@ -480,8 +487,10 @@ if the list is empty.
 >   deriving (Eq, Show, Generic)
 
 > instance Monoid (First a) where
->   x <> y = undefined
->   mempty = undefined
+>   x <> y = case x of
+>     First Nothing -> y
+>     otherwise -> x
+>   mempty = First Nothing 
 
 
 b.
@@ -496,7 +505,7 @@ empty, then all of the zero functions in the list return True.)
 >   deriving Generic
 
 > instance Monoid (Conjoined a) where
->   f <> g = undefined
+>   (Conjoined f) <> (Conjoined g) = undefined --Conjoined (f <> g)
 >   mempty = undefined
 
 *****************
