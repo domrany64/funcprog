@@ -255,8 +255,8 @@ should satisfy the associativity law when "f == g" over functions f/g means
 "for any valid input x, f x == g x".
 
 > instance Monoid b => Monoid (a -> b) where
->   f <> g = undefined
->   mempty = undefined
+>   f <> g = \x -> (f x) <> (g x) 
+>   mempty = \x -> mempty
 
 
 *****************
@@ -373,7 +373,7 @@ Do not modify the Monoid instance for BinTree above.
 Don't worry about efficiency. This is probably simpler than you think!
 
 > instance Eq a => Eq (BinTree a) where
->   t1 == t2 = (nodeList t1 == nodeList t2) && (nodeCount t1 == nodeCount t2)
+>   t1 == t2 = (nodeList t1 == nodeList t2)
 
 *****************
 * END PROBLEM 2 *
@@ -505,8 +505,8 @@ empty, then all of the zero functions in the list return True.)
 >   deriving Generic
 
 > instance Monoid (Conjoined a) where
->   (Conjoined f) <> (Conjoined g) = undefined --Conjoined (f <> g)
->   mempty = undefined
+>   (Conjoined f) <> (Conjoined g) = Conjoined (\x -> (getAll (All (f x) <> All (g x))))
+>   mempty = Conjoined (\y  -> True)
 
 *****************
 * END PROBLEM 3 *
