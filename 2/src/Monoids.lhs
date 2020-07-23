@@ -586,7 +586,7 @@ additional named arguments or remove the call to "foldMap" in the definition of
 "frequencies".
 
 > frequencies :: Eq a => [a] -> Dist a
-> frequencies = undefined
+> frequencies = foldMap undefined
 
 *****************
 * END PROBLEM 4 *
