@@ -1,4 +1,4 @@
-s module implements a game of "connect four", which also goes by other names.
+This module implements a game of "connect four", which also goes by other names.
 Review the rules on Wikipedia if you're unfamiliar:
 https://en.wikipedia.org/wiki/Connect_Four
 
@@ -141,16 +141,6 @@ and the second coordinate is the Y coordinate going from top to bottom.
 > inProgress :: Board -> Bool
 > inProgress b = not (won b X || won b O) && any (emptyAt b) allIxs
 
-> moveOutcome :: Board -> Player -> Index -> Outcome
-> moveOutcome b x i = opponentOutcome (boardOutcome (write i x b) (opponent x))
-
-> boardOutcome :: Board -> Player -> Outcome
-> boardOutcome b x =
->   if won b x then Win
->   else if won b (opponent x) then Loss
->   else if not (inProgress b) then Tie
->   else maximum (map (moveOutcome b x) (map extractIdx (map (xtoIndex b) (notFullColumns b))))
-
   exampleBoard is to use during test.
 
 > example :: Index -> Cell
@@ -196,12 +186,6 @@ and the second coordinate is the Y coordinate going from top to bottom.
 >         Nothing  -> tryAgain "invalid column number"
 >     _ -> tryAgain "invalid input"
 
-> aiMove :: Board -> Player -> Index
-> aiMove b x = maximumBy (comparing (moveOutcome b x)) (map extractIdx (map (xtoIndex b) (notFullColumns b)))
-
-> aiAct :: Board -> Player -> Board
-> aiAct b x = write (aiMove b x) x b
-
 > exitMsg :: Board -> IO ()
 > exitMsg b = do
 >   if won b X then putStrLn "X wins!"
@@ -210,12 +194,13 @@ and the second coordinate is the Y coordinate going from top to bottom.
 
 > play :: Board -> IO ()
 > play b = do
->   print b
 >   if inProgress b then do
 >     b' <- playerAct b X
 >     print b'
->     if inProgress b' then
->       play $ aiAct b' O
+>     if inProgress b' then do
+>      b'' <- playerAct b' O
+>      print b''
+>      play b''
 >     else
 >       exitMsg b'
 >   else
