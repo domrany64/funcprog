@@ -7,6 +7,7 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.Map.Append as AppendMap
 import Data.Map.Append (AppendMap(..))
+import Data.Monoid ((<>))
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.List (intersperse)

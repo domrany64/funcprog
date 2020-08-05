@@ -77,13 +77,9 @@ the user combine them when needed.
 
 > module Foldables where
 
-We'll be defining simplified versions of the Foldable and Applicative
-typeclasses in this file. The Prelude versions have the same operations with
-the same types as the ones given in here, but they also allow instances to
-override some derived functions with more optimized implementations.
-
 > import Prelude hiding (Applicative(..), any, concat)
 > import Data.Foldable
+> import Data.Semigroup
 
 We'll be using some types from the "containers" package, as in the last
 assignment. We'll also import the "union map" type instead of defining our own:
