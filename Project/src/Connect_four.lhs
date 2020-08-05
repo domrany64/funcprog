@@ -130,18 +130,36 @@ and the second coordinate is the Y coordinate going from top to bottom.
 > won :: Board -> Player -> Bool
 > won b x = any (all (playerAt b x)) winLines
 
+> data Outcome = Loss | Tie | Win
+>   deriving (Eq, Ord, Show)
+
+> opponentOutcome :: Outcome -> Outcome
+> opponentOutcome Loss = Win
+> opponentOutcome Tie = Tie
+> opponentOutcome Win = Loss
+
 > inProgress :: Board -> Bool
 > inProgress b = not (won b X || won b O) && any (emptyAt b) allIxs
+
+> moveOutcome :: Board -> Player -> Index -> Outcome
+> moveOutcome b x i = opponentOutcome (boardOutcome (write i x b) (opponent x))
+
+> boardOutcome :: Board -> Player -> Outcome
+> boardOutcome b x =
+>   if won b x then Win
+>   else if won b (opponent x) then Loss
+>   else if not (inProgress b) then Tie
+>   else maximum (map (moveOutcome b x) (map extractIdx (map (xtoIndex b) (notFullColumns b))))
 
   exampleBoard is to use during test.
 
 > example :: Index -> Cell
-> example (X0,Y0) = Empty; example (X1,Y0) = Empty; example (X2,Y0) = Mark O; example (X3,Y0) = Empty; example (X4,Y0) = Empty; example (X5,Y0) = Empty; example (X6,Y0) = Empty
-> example (X0,Y1) = Empty; example (X1,Y1) = Empty; example (X2,Y1) = Mark X; example (X3,Y1) = Empty; example (X4,Y1) = Empty; example (X5,Y1) = Empty; example (X6,Y1) = Empty
-> example (X0,Y2) = Empty; example (X1,Y2) = Empty; example (X2,Y2) = Mark O; example (X3,Y2) = Empty; example (X4,Y2) = Empty; example (X5,Y2) = Empty; example (X6,Y2) = Empty
-> example (X0,Y3) = Empty; example (X1,Y3) = Empty; example (X2,Y3) = Mark X; example (X3,Y3) = Empty; example (X4,Y3) = Empty; example (X5,Y3) = Empty; example (X6,Y3) = Mark O
-> example (X0,Y4) = Empty; example (X1,Y4) = Empty; example (X2,Y4) = Mark O; example (X3,Y4) = Empty; example (X4,Y4) = Empty; example (X5,Y4) = Empty; example (X6,Y4) = Mark O
-> example (X0,Y5) = Empty; example (X1,Y5) = Empty; example (X2,Y5) = Mark X; example (X3,Y5) = Mark X; example (X4,Y5) = Mark X; example (X5,Y5) = Mark X; example (X6,Y5) = Mark O
+> example (X0,Y0) = Empty; example (X1,Y0) = Empty; example (X2,Y0) = Mark X; example (X3,Y0) = Empty; example (X4,Y0) = Empty; example (X5,Y0) = Empty; example (X6,Y0) = Empty
+> example (X0,Y1) = Empty; example (X1,Y1) = Empty; example (X2,Y1) = Mark O; example (X3,Y1) = Empty; example (X4,Y1) = Empty; example (X5,Y1) = Empty; example (X6,Y1) = Empty
+> example (X0,Y2) = Empty; example (X1,Y2) = Empty; example (X2,Y2) = Mark X; example (X3,Y2) = Empty; example (X4,Y2) = Empty; example (X5,Y2) = Empty; example (X6,Y2) = Empty
+> example (X0,Y3) = Empty; example (X1,Y3) = Empty; example (X2,Y3) = Mark O; example (X3,Y3) = Empty; example (X4,Y3) = Empty; example (X5,Y3) = Empty; example (X6,Y3) = Mark O
+> example (X0,Y4) = Empty; example (X1,Y4) = Empty; example (X2,Y4) = Mark X; example (X3,Y4) = Empty; example (X4,Y4) = Empty; example (X5,Y4) = Empty; example (X6,Y4) = Mark O
+> example (X0,Y5) = Empty; example (X1,Y5) = Empty; example (X2,Y5) = Mark O; example (X3,Y5) = Mark X; example (X4,Y5) = Mark X; example (X5,Y5) = Mark X; example (X6,Y5) = Mark O
 > exampleBoard :: Board
 > exampleBoard = Board example
 
@@ -178,3 +196,27 @@ and the second coordinate is the Y coordinate going from top to bottom.
 >         Nothing  -> tryAgain "invalid column number"
 >     _ -> tryAgain "invalid input"
 
+> aiMove :: Board -> Player -> Index
+> aiMove b x = maximumBy (comparing (moveOutcome b x)) (map extractIdx (map (xtoIndex b) (notFullColumns b)))
+
+> aiAct :: Board -> Player -> Board
+> aiAct b x = write (aiMove b x) x b
+
+> exitMsg :: Board -> IO ()
+> exitMsg b = do
+>   if won b X then putStrLn "X wins!"
+>   else if won b O then putStrLn "O wins!"
+>   else putStrLn "it's a tie"
+
+> play :: Board -> IO ()
+> play b = do
+>   print b
+>   if inProgress b then do
+>     b' <- playerAct b X
+>     print b'
+>     if inProgress b' then
+>       play $ aiAct b' O
+>     else
+>       exitMsg b'
+>   else
+>     exitMsg b
