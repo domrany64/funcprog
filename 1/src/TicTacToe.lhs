@@ -311,11 +311,6 @@ Replace the "Tie" below with your definition.
 > moveOutcome :: Board -> Player -> Index -> Outcome
 > moveOutcome b x i = opponentOutcome (boardOutcome (write i x b) (opponent x))
 
- 
-   if won (write i x b) x then Win
-   else if won (write i (opponent x) b) (opponent x) then Tie
-   else maximum (map boardOutcome (map write (emptyIxs b) x b) x)
- 
 *****************
 * END PROBLEM 4 *
 *****************
